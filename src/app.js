@@ -40,6 +40,7 @@ const io = new Server(httpServer, {
       "http://localhost:3000",
       "http://localhost:3002",
       "http://localhost:3001",
+      "https://connect.coryfi.com",
     ],
     credentials: true,
   },
@@ -54,6 +55,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3002",
       "http://localhost:3001",
+      "https://connect.coryfi.com",
     ],
     // process.env.CORS_ORIGIN === "*"
     //   ? "*" // This might give CORS error for some origins due to credentials set to true
