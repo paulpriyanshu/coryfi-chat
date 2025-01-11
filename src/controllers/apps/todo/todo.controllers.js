@@ -1,4 +1,3 @@
-import { Todo } from "../../../models/apps/todo/todo.models.js";
 import { ApiError } from "../../../utils/ApiError.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 import { asyncHandler } from "../../../utils/asyncHandler.js";
@@ -98,11 +97,10 @@ const toggleTodoDoneStatus = asyncHandler(async (req, res) => {
     .status(200)
     .json(
       new ApiResponse(
-    200,
-    todo,
-    `Todo marked ${todo.isComplete ? "done" : "undone"}`
-    )
-
+        200,
+        todo,
+        `Todo marked ${todo.isComplete ? "done" : "undone"}`
+      )
     );
 });
 

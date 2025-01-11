@@ -44,26 +44,34 @@ const chatMessageCommonAggregation = () => {
 };
 
 const getAllMessages = asyncHandler(async (req, res) => {
-  const { chatId } = req.params;
+  // Extract `chatId` and `userId` from `req.params`
+  const { chatId, userId } = req.params;
 
+  // Validate the presence of both `chatId` and `userId`
+  if (!chatId || !userId) {
+    throw new ApiError(400, "Both chatId and userId are required");
+  }
+
+  // Find the chat by ID
   const selectedChat = await Chat.findById(chatId);
 
   if (!selectedChat) {
     throw new ApiError(404, "Chat does not exist");
   }
 
-  // Only send messages if the logged in user is a part of the chat he is requesting messages of
-  if (!selectedChat.participants?.includes(req.user?._id)) {
-    throw new ApiError(400, "User is not a part of this chat");
+  // Ensure the user is a participant in the chat
+  if (!selectedChat.participants?.includes(userId)) {
+    throw new ApiError(403, "User is not a part of this chat");
   }
 
+  // Fetch messages for the specified chat
   const messages = await ChatMessage.aggregate([
     {
       $match: {
         chat: new mongoose.Types.ObjectId(chatId),
       },
     },
-    ...chatMessageCommonAggregation(),
+    ...chatMessageCommonAggregation(), // Ensure this is a valid function
     {
       $sort: {
         createdAt: -1,
@@ -71,15 +79,15 @@ const getAllMessages = asyncHandler(async (req, res) => {
     },
   ]);
 
+  // Respond with the messages
   return res
     .status(200)
     .json(
       new ApiResponse(200, messages || [], "Messages fetched successfully")
     );
 });
-
 const sendMessage = asyncHandler(async (req, res) => {
-  const { chatId } = req.params;
+  const { chatId, userId } = req.params;
   const { content } = req.body;
 
   if (!content && !req.files?.attachments?.length) {
@@ -105,7 +113,7 @@ const sendMessage = asyncHandler(async (req, res) => {
 
   // Create a new message instance with appropriate metadata
   const message = await ChatMessage.create({
-    sender: new mongoose.Types.ObjectId(req.user._id),
+    sender: new mongoose.Types.ObjectId(req.params.userId),
     content: content || "",
     chat: new mongoose.Types.ObjectId(chatId),
     attachments: messageFiles,
@@ -143,7 +151,7 @@ const sendMessage = asyncHandler(async (req, res) => {
   chat.participants.forEach((participantObjectId) => {
     // here the chat is the raw instance of the chat in which participants is the array of object ids of users
     // avoid emitting event to the user who is sending the message
-    if (participantObjectId.toString() === req.user._id.toString()) return;
+    if (participantObjectId.toString() === req.params.userId) return;
 
     // emit the receive message event to the other participants with received message as the payload
     emitSocketEvent(
@@ -184,7 +192,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
   }
 
   // Check if user is the sender of the message
-  if (message.sender.toString() !== req.user._id.toString()) {
+  if (message.sender.toString() !== req.params.id) {
     throw new ApiError(
       403,
       "You are not the authorised to delete the message, you are not the sender"

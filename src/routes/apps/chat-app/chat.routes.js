@@ -12,7 +12,7 @@ import {
   renameGroupChat,
   searchAvailableUsers,
 } from "../../../controllers/apps/chat-app/chat.controllers.js";
-import { verifyJWT } from "../../../middlewares/auth.middlewares.js";
+// import { verifyJWT } from "../../../middlewares/auth.middlewares.js";
 import {
   createAGroupChatValidator,
   updateGroupChatNameValidator,
@@ -21,15 +21,15 @@ import { mongoIdPathVariableValidator } from "../../../validators/common/mongodb
 import { validate } from "../../../validators/validate.js";
 
 const router = Router();
+//hello
+// router.use(verifyJWT);
 
-router.use(verifyJWT);
+router.route("/:id").get(getAllChats);
 
-router.route("/").get(getAllChats);
-
-router.route("/users").get(searchAvailableUsers);
+router.route("/users/:id").get(searchAvailableUsers);
 
 router
-  .route("/c/:receiverId")
+  .route("/c/:receiverId/:id")
   .post(
     mongoIdPathVariableValidator("receiverId"),
     validate,

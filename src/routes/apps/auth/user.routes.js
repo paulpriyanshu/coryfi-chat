@@ -6,6 +6,7 @@ import {
   changeCurrentPassword,
   forgotPasswordRequest,
   getCurrentUser,
+  getOneUser,
   handleSocialLogin,
   loginUser,
   logoutUser,
@@ -15,6 +16,8 @@ import {
   resetForgottenPassword,
   updateUserAvatar,
   verifyEmail,
+  getOneUserWithId,
+  editUser,
 } from "../../../controllers/apps/auth/user.controllers.js";
 import {
   verifyJWT,
@@ -35,9 +38,11 @@ import { mongoIdPathVariableValidator } from "../../../validators/common/mongodb
 
 const router = Router();
 
-// Unsecured route
-router.route("/register").post(userRegisterValidator(), validate, registerUser);
-router.route("/login").post(userLoginValidator(), validate, loginUser);
+router.route("/register").post(registerUser);
+router.route("/getOneUser/:email").get(getOneUser);
+router.route("/editUser").post(editUser);
+router.route("/getOneUserWithId/:id").get(getOneUserWithId);
+router.route("/login").post(loginUser);
 router.route("/refresh-token").post(refreshAccessToken);
 router.route("/verify-email/:verificationToken").get(verifyEmail);
 

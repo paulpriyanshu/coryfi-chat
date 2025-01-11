@@ -12,10 +12,10 @@ import { validate } from "../../../validators/validate.js";
 
 const router = Router();
 
-router.use(verifyJWT);
+// router.use(verifyJWT);
 
 router
-  .route("/:chatId")
+  .route("/:chatId/:userId")
   .get(mongoIdPathVariableValidator("chatId"), validate, getAllMessages)
   .post(
     upload.fields([{ name: "attachments", maxCount: 5 }]),

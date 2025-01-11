@@ -9,9 +9,6 @@ import {
   UserLoginType,
   UserRolesEnum,
 } from "../../../constants.js";
-import { Cart } from "../ecommerce/cart.models.js";
-import { EcomProfile } from "../ecommerce/profile.models.js";
-import { SocialProfile } from "../social-media/profile.models.js";
 
 const userSchema = new Schema(
   {
@@ -28,8 +25,6 @@ const userSchema = new Schema(
     username: {
       type: String,
       required: true,
-      unique: true,
-      lowercase: true,
       trim: true,
       index: true,
     },
@@ -46,33 +41,10 @@ const userSchema = new Schema(
       default: UserRolesEnum.USER,
       required: true,
     },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-    },
     loginType: {
       type: String,
       enum: AvailableSocialLogins,
       default: UserLoginType.EMAIL_PASSWORD,
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    refreshToken: {
-      type: String,
-    },
-    forgotPasswordToken: {
-      type: String,
-    },
-    forgotPasswordExpiry: {
-      type: Date,
-    },
-    emailVerificationToken: {
-      type: String,
-    },
-    emailVerificationExpiry: {
-      type: Date,
     },
   },
   { timestamps: true }
@@ -84,34 +56,34 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.post("save", async function (user, next) {
-  // ! Generally, querying data on every user save is not a good idea and not necessary when you are working on a specific application which has concrete models which are tightly coupled
-  // ! However, in this application this user model is being referenced in many loosely coupled models so we need to do some initial setups before proceeding to make sure the data consistency and integrity
-  const ecomProfile = await EcomProfile.findOne({ owner: user._id });
-  const socialProfile = await SocialProfile.findOne({ owner: user._id });
-  const cart = await Cart.findOne({ owner: user._id });
+// userSchema.post("save", async function (user, next) {
+//   // ! Generally, querying data on every user save is not a good idea and not necessary when you are working on a specific application which has concrete models which are tightly coupled
+//   // ! However, in this application this user model is being referenced in many loosely coupled models so we need to do some initial setups before proceeding to make sure the data consistency and integrity
+//   const ecomProfile = await EcomProfile.findOne({ owner: user._id });
+//   const socialProfile = await SocialProfile.findOne({ owner: user._id });
+//   const cart = await Cart.findOne({ owner: user._id });
 
-  // Setup necessary ecommerce models for the user
-  if (!ecomProfile) {
-    await EcomProfile.create({
-      owner: user._id,
-    });
-  }
-  if (!cart) {
-    await Cart.create({
-      owner: user._id,
-      items: [],
-    });
-  }
+//   // Setup necessary ecommerce models for the user
+//   if (!ecomProfile) {
+//     await EcomProfile.create({
+//       owner: user._id,
+//     });
+//   }
+//   if (!cart) {
+//     await Cart.create({
+//       owner: user._id,
+//       items: [],
+//     });
+//   }
 
-  // Setup necessary social media models for the user
-  if (!socialProfile) {
-    await SocialProfile.create({
-      owner: user._id,
-    });
-  }
-  next();
-});
+//   // Setup necessary social media models for the user
+//   if (!socialProfile) {
+//     await SocialProfile.create({
+//       owner: user._id,
+//     });
+//   }
+//   next();
+// });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
