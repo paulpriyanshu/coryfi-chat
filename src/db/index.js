@@ -8,7 +8,7 @@ export let dbInstance = undefined;
 const connectDB = async () => {
   try {
     const connectionInstance = await mongoose.connect(
-      `${process.env.MONGODB_URI}/${DB_NAME}`
+      `mongodb+srv://coryficonnect:coryficonnect@cluster0.zlrtl.mongodb.net/`
     );
     dbInstance = connectionInstance;
     logger.info(
