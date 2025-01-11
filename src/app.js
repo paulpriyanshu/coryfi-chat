@@ -36,12 +36,10 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3002",
-      "http://localhost:3001",
-      "https://connect.coryfi.com",
-    ],
+    origin: (origin, callback) => {
+      // Allow all origins
+      callback(null, origin || true);
+    },
     credentials: true,
   },
 });
@@ -51,17 +49,15 @@ app.set("io", io); // using set method to mount the `io` instance on the app to 
 // global middlewares
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3002",
-      "http://localhost:3001",
-      "https://connect.coryfi.com",
-    ],
-    // process.env.CORS_ORIGIN === "*"
-    //   ? "*" // This might give CORS error for some origins due to credentials set to true
-    //   : process.env.CORS_ORIGIN?.split(","), // For multiple cors origin for production. Refer https://github.com/hiteshchoudhary/apihub/blob/a846abd7a0795054f48c7eb3e71f3af36478fa96/.env.sample#L12C1-L12C12
+    origin: (origin, callback) => {
+      // Allow all origins
+      callback(null, origin || true);
+    },
     credentials: true,
   })
+  // process.env.CORS_ORIGIN === "*"
+  //   ? "*" // This might give CORS error for some origins due to credentials set to true
+  //   : process.env.CORS_ORIGIN?.split(","), // For multiple cors origin for production. Refer https://github.com/hiteshchoudhary/apihub/blob/a846abd7a0795054f48c7eb3e71f3af36478fa96/.env.sample#L12C1-L12C12
 );
 
 app.use(requestIp.mw());
