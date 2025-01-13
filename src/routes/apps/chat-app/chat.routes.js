@@ -28,13 +28,11 @@ router.route("/:id").get(getAllChats);
 
 router.route("/users/:id").get(searchAvailableUsers);
 
-router
-  .route("/c/:receiverId/:id")
-  .post(
-    mongoIdPathVariableValidator("receiverId"),
-    validate,
-    createOrGetAOneOnOneChat
-  );
+router.route("/c/:receiverId/:id").post(
+  // mongoIdPathVariableValidator("receiverId"),
+  // validate,
+  createOrGetAOneOnOneChat
+);
 
 router
   .route("/group")
