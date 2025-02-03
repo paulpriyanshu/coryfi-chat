@@ -11,6 +11,7 @@ import {
   getStaticFilePath,
   removeLocalFile,
 } from "../../../utils/helpers.js";
+import { User } from "../../../models/apps/auth/user.models.js";
 
 /**
  * @description Utility function which returns the pipeline stages to structure the chat message schema with common lookups
@@ -99,7 +100,13 @@ const sendMessage = asyncHandler(async (req, res) => {
   if (!selectedChat) {
     throw new ApiError(404, "Chat does not exist");
   }
-
+  const receiver = selectedChat.participants.find(
+    (participant) => participant._id.toString() !== userId
+  );
+  // const recieverName=(await User.findById(receiver)).username
+  // const reciever=(await User.findById(receiver))
+  // console.log("reciever",reciever)
+  // console.log("reciever",reciever.name)
   const messageFiles = [];
 
   if (req.files && req.files.attachments?.length > 0) {
